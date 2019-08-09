@@ -180,6 +180,7 @@ void ScriptPubKeyToUniv(const CScript& scriptPubKey,
 
             switch (type) {
                 case TX_NEW_ASSET:
+                  {
                     if (IsAssetNameAnOwner(name)) {
                         // pwnd n00b
                     } else {
@@ -188,25 +189,30 @@ void ScriptPubKeyToUniv(const CScript& scriptPubKey,
                             assetInfo.pushKV("units", asset.units);
                             assetInfo.pushKV("reissuable", asset.nReissuable > 0 ? true : false);
                             if (asset.nHasIPFS > 0) {
-                                assetInfo.pushKV("ipfs_hash", EncodeIPFS(asset.strIPFSHash));
+                                assetInfo.pushKV("ipfs_hash", EncodeAssetData(asset.strIPFSHash));
                             }
                         }
                     }
                     break;
-                case TX_TRANSFER_ASSET:
-                    break;
+                  }
                 case TX_REISSUE_ASSET:
-                    CReissueAsset asset;
-                    if (ReissueAssetFromScript(scriptPubKey, asset, _assetAddress)) {
-                        if (asset.nUnits >= 0) {
-                            assetInfo.pushKV("units", asset.nUnits);
-                        }
+                    {
+                      CReissueAsset asset;
+                      if (ReissueAssetFromScript(scriptPubKey, asset, _assetAddress)) {
+                          if (asset.nUnits >= 0) {
+                              assetInfo.pushKV("units", asset.nUnits);
+                          }
                         assetInfo.pushKV("reissuable", asset.nReissuable > 0 ? true : false);
                         if (!asset.strIPFSHash.empty()) {
-                            assetInfo.pushKV("ipfs_hash", EncodeIPFS(asset.strIPFSHash));
+                          assetInfo.pushKV("ipfs_hash", EncodeAssetData(asset.strIPFSHash));
                         }
-                    }
+                      }
                     break;
+                  }
+                default:
+                    {
+                      break;
+                    }
             }
         }
 
